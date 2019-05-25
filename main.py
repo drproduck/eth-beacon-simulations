@@ -42,6 +42,8 @@ if __name__ == "__main__": # log with the following format
   print(stats)
   n = 0
   for s in stats:
+    if s[0] == 0 and s[1] == 0: raise Exception("Somethingwong")
+    if s[0] == 0 or s[1] == 0: n += 1
     if s[0] / s[1] >= 3/2 or s[0] / s[1] <= 2/3:
       n += 1
 

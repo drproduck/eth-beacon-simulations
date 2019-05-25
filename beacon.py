@@ -50,7 +50,6 @@ class Faction(object):
 
 
 
-
 class HonestFaction(Faction):
 
   def __init__(self, num, name, aim, error_param, delay_param):
