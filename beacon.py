@@ -111,7 +111,6 @@ class SmokeFaction(Faction):
     self.aim = aim
     self.error_param = error_param
     self.delay_param = delay_param
-    self.timings = self.timing_with_mean(error_param, aim-delay_param)
 
 
   def get_timings(self):
@@ -134,12 +133,27 @@ def adjusted_random_time(lower, upper):
     timing = 0.99999
   return timing
 
+
 def logger(toggle, log): #logging helper function
   if (toggle == 0):
     return
   if (toggle == 1):
     return logging.info(log)
-
     
 
+def play(faction1, faction2):
+  factions = (faction1, faction2)
+  timings = []
+  for f in factions:
+    timings += f.get_timings()
+  timings.sort(key = lambda x: x[1])
+  votes = []
+  for t in timings:
+    v = t[0]
+    time = t[1]
+    logger(logtoggle, "%s votes [t=%.3f]" % (v.name, time))
+    vote = v.faction.get_vote(time, votes)
+    logger(logtoggle, "%s votes %s" % (v.name, str(vote)))
+    votes.append((v, time, vote))    
+  return votes
   

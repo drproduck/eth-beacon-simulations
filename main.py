@@ -7,21 +7,6 @@ from beacon import *
 
 # logging = 0 # uncomment to turn off logging
 
-def play(faction1, faction2):
-  factions = (faction1, faction2)
-  timings = []
-  for f in factions:
-    timings += f.get_timings()
-  timings.sort(key = lambda x: x[1])
-  votes = []
-  for t in timings:
-    v = t[0]
-    time = t[1]
-    logger(logtoggle, "%s votes [t=%.3f]" % (v.name, time))
-    vote = v.faction.get_vote(time, votes)
-    logger(logtoggle, "%s votes %s" % (v.name, str(vote)))
-    votes.append((v, time, vote))    
-  return votes
 
 
 def collect_statistics(votes):
