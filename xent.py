@@ -34,10 +34,10 @@ def sample_p_win(mu_b):
   stats = [collect_statistics(play(faction1, faction2)) for _ in range(n_games)] 
   
   n = 0
+
   for s in stats:
     if s[0] == 0 and s[1] == 0: raise Exception('sometingwong')
-    if s[0] == 0 or s[1] == 0: continue
-    if s[0] / s[1] >= 2/3 and s[0] / s[1] <= 3/2:
+		if s[0] / len(stats) >= 2/3 and s[0] / len(stats) <= 3/2:
       n += 1
   return n / len(stats)
 
