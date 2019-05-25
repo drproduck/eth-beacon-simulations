@@ -8,16 +8,15 @@ from main import collect_statistics
 
 a = 0.05
 b = 0.95
-mu = 0.2
-std = 0.5
+std = 0.2
 
 aim_h=0.5
 num_h=20
 num_b=10
 error_param=0.1
 delay_param=0.2
-n_games = 50
-n_mu_samples = 50
+n_games = 1000
+n_samples = 10
 
 
 def sample_p_win(mu_b):
@@ -43,24 +42,24 @@ def sample_p_win(mu_b):
   return n / len(stats)
 
 
-def eval(mu_b_samples, p_win):
-  mu_probs = truncnorm.pdf((mu_b_samples - mu) / std, (a - mu_b) / std, (b - mu_b) / std) 
-  print(mu_probs)
-  print(p_win)
-  return sum(mu_probs * p_win)
-
 
 def get_gradient(mu_b):
-  mu_b_samples = std * truncnorm.rvs((a - mu_b) / std, (b - mu_b) / std, size=n_mu_samples) + mu
-  grad_log = (mu_b_samples - mu_b) / std**2
-  p_win = [sample_p_win(mu_b) for mu_b in mu_b_samples]
+  Td_samples = std * truncnorm.rvs((a - mu_Td) / std, (b - mu_Td) / std, size=n_samples) + mu_Td
+  grad_log = (Td_samples - mu_Td) / std**2
+  p_win = [sample_p_win(Td) for Td in Td_samples]
+  mu_probs = truncnorm.pdf((Td_samples - mu_Td) / std, (a - mu_Td) / std, (b - mu_Td) / std) 
+  print(mu_probs)
+  print(p_win)
 
-  return sum(grad_log * p_win), eval(mu_b_samples, p_win)
+  grad = sum(grad_log * p_win) / n_samples
+  cost = sum(mu_probs * p_win) / n_samples
+
+  return grad, cost
 
 
 class robbins_monro():
 
-  def __init__(self, stepsize_init=0.01, stepsize_lambda=1e-3):
+  def __init__(self, stepsize_init=1, stepsize_lambda=1e-2):
     self.stepsize_init = stepsize_init
     self.stepsize_lambda = stepsize_lambda
     self.iter = 0
@@ -68,22 +67,24 @@ class robbins_monro():
   def __call__(self, X, G):
     self.iter += 1
     learn_rate =  self.stepsize_init / (1 + self.stepsize_init*self.stepsize_lambda*self.iter)
-    return X - learn_rate * G
+    if G == 0: G = (1 if np.random.rand()<0.5 else -1) * 1e-3
+# force it to learn
+    return X + learn_rate * G
 
 
-mu_b = 0.8
+mu_Td = 0.8
 update_op = robbins_monro()
 n_iters = 20
 cost_hist = []
 
 # training
 for i in range(n_iters):
-  G, cost = get_gradient(mu_b)
-  mu_b = update_op(mu_b, G)
-  if mu_b < 0: mu_b = 1e-5
-  if mu_b > 1: mu_b = 1 - 1e-5
+  G, cost = get_gradient(mu_Td)
+  mu_Td = update_op(mu_Td, G)
+  if mu_Td < 0: mu_Td = 1e-5
+  if mu_Td > 1: mu_Td = 1 - 1e-5
   cost_hist.append(cost)
-  print(mu_b, cost)
+  print(mu_Td, cost)
 
 plt.plot(cost_hist)
 plt.show()
