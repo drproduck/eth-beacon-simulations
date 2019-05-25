@@ -38,9 +38,16 @@ def sample_p_win(mu_b):
   for s in stats:
     if s[0] == 0 and s[1] == 0: raise Exception('sometingwong')
     if s[0] == 0 or s[1] == 0: continue
-    if s[0] / s[1] >= 2/3  or s[0] / s[1] <= 3/2:
+    if s[0] / s[1] >= 2/3 and s[0] / s[1] <= 3/2:
       n += 1
   return n / len(stats)
+
+
+def eval(mu_b_samples, p_win):
+  mu_probs = truncnorm.pdf((mu_b_samples - mu) / std, (a - mu_b) / std, (b - mu_b) / std) 
+  print(mu_probs)
+  print(p_win)
+  return sum(mu_probs * p_win)
 
 
 def get_gradient(mu_b):
@@ -48,12 +55,12 @@ def get_gradient(mu_b):
   grad_log = (mu_b_samples - mu_b) / std**2
   p_win = [sample_p_win(mu_b) for mu_b in mu_b_samples]
 
-  return sum(grad_log * p_win)
+  return sum(grad_log * p_win), eval(mu_b_samples, p_win)
 
 
 class robbins_monro():
 
-  def __init__(self, stepsize_init=0.001, stepsize_lambda=1e-3):
+  def __init__(self, stepsize_init=0.01, stepsize_lambda=1e-3):
     self.stepsize_init = stepsize_init
     self.stepsize_lambda = stepsize_lambda
     self.iter = 0
@@ -61,21 +68,25 @@ class robbins_monro():
   def __call__(self, X, G):
     self.iter += 1
     learn_rate =  self.stepsize_init / (1 + self.stepsize_init*self.stepsize_lambda*self.iter)
-    return X + learn_rate * G
+    return X - learn_rate * G
 
 
-mu_b = 0.2
+mu_b = 0.8
 update_op = robbins_monro()
-n_iters = 100
+n_iters = 20
+cost_hist = []
 
 # training
 for i in range(n_iters):
-  G = get_gradient(mu_b)
+  G, cost = get_gradient(mu_b)
   mu_b = update_op(mu_b, G)
   if mu_b < 0: mu_b = 1e-5
   if mu_b > 1: mu_b = 1 - 1e-5
-  print(mu_b)
+  cost_hist.append(cost)
+  print(mu_b, cost)
 
+plt.plot(cost_hist)
+plt.show()
 
 # score function estimator derivative of p(winning) = \int p(winning)p(mu_d)
 # d(mu_d)
