@@ -1,5 +1,6 @@
 import random
 import matplotlib.pyplot as plt
+import numpy as np
 
 n = 1000000
 #Master list of activators and exits
@@ -14,7 +15,7 @@ for i in range(n):
 
     'Can probably rewrite this as a function'
     #Samples four uniform numbers
-    Numbers = [random.uniform(0,1), random.uniform(0,1), random.uniform(0,1), random.uniform(0,1)]
+    Numbers = np.random.rand(4)
     #Normalizes so they add up to 1 to make them percentages
     L_0 = [i/sum(Numbers) for i in Numbers]
     #L_0 = [A,B,C,D]
@@ -27,9 +28,9 @@ for i in range(n):
     ##Constructs F explicitly
     'Can probably rewrite this as a function'
     #Samples two uniform numbers within the range of activations of L
-    X = [random.uniform(0,x), random.uniform(0,x)]
+    X = np.array([random.uniform(0,x), random.uniform(0,x)])
     #Normalizes this so they add up to x
-    Normalized_X = [i*x/sum(X) for i in X]
+		Normalized_X = x * (X / sum(X))
     ##sum(Normalized_X) - x should be machine 0
     #Normalized_X = [E,F]
 

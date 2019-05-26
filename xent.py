@@ -37,7 +37,7 @@ def sample_p_win(mu_b):
 
   for s in stats:
     if s[0] == 0 and s[1] == 0: raise Exception('sometingwong')
-		if s[0] / len(stats) > 1/3 and s[0] / len(stats) < 2/3:
+    if s[0] / len(stats) > 1/3 and s[0] / len(stats) < 2/3:
       n += 1
   return n / len(stats)
 
@@ -72,7 +72,7 @@ class robbins_monro():
     return X + learn_rate * G
 
 
-mu_Td = 0.8
+mu_Td = 0.3
 update_op = robbins_monro()
 n_iters = 20
 cost_hist = []
